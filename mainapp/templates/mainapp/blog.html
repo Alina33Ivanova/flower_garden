@@ -1,0 +1,102 @@
+{% extends 'mainapp/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container" style="margin-top: 120px">
+    <h3 style="text-align: center">Блог</h3>
+
+    <form method="get" action="{% url 'mainapp:blog' %}"
+          style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 40px;">
+        <!-- существующие фильтры -->
+        <div style="display: flex; flex-direction: column; min-width: 200px;">
+            <p style="margin-bottom: 5px;">Фильтровать по категории:</p>
+            <select name="rubric" onchange="this.form.submit()" style="width: 100%;">
+                <option value="">Выберите категорию</option>
+                {% for rubric in rubrics %}
+                    <option value="{{ rubric.id }}" {% if rubric.id|stringformat:"s" == selected_rank %}selected{% endif %}>
+                        {{ rubric.rubric_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="display: flex; flex-direction: column; min-width: 200px;">
+            <p style="margin-bottom: 5px;">Фильтровать по дате публикации:</p>
+            <select name="sort" onchange="this.form.submit()" style="width: 100%;">
+                <option value="desc" {% if selected_sort == 'desc' %}selected{% endif %}>Сначала новые</option>
+                <option value="asc" {% if selected_sort == 'asc' %}selected{% endif %}>Сначала старые</option>
+            </select>
+        </div>
+        <div style="display: flex; flex-direction: column; min-width: 200px; margin-top: 20px;">
+            <label style="cursor: pointer;">
+                <input type="checkbox" name="liked_only" value="1" onchange="this.form.submit()"
+                       {% if filter_liked == '1' %}checked{% endif %}>
+                Только понравившиеся
+            </label>
+        </div>
+    </form>
+
+    <div class="row row-cols-1 row-cols-md-4 g-4 mt-3 mb-4">
+        {% for item in articles %}
+        <div class="col">
+            <div class="card h-100">
+                <div style="position: relative;">
+                    <img src="{{ item.image.url }}" class="card-img-top" alt="Изображение статьи"
+                         style="border-radius: 0px; padding: 10px 10px 0px 10px">
+                </div>
+                <div class="card-body">
+                    <div class="text d-flex justify-content-between flex-wrap flex-row">
+                        <h5 class="card-title">{{ item.title|capfirst }}</h5>
+                    </div>
+
+                    <p class="card-title">{{ item.rubric|capfirst }}</p>
+                    <div class="text_and_btn d-flex align-items-start justify-content-between flex-wrap flex-row">
+                        <a href="{% url 'mainapp:article_detail' item.id %}">Читать</a>
+                        <p style="text-align: end">{{ item.created_at|date:"d.m.Y" }}</p>
+                    </div>
+                    <form method="post" action="{% url 'mainapp:toggle_like' item.id %}">
+                        {% csrf_token %}
+                        <button type="submit" id="like">
+                            {% if item.id in liked_article_ids %}
+                            <img src="{% static 'img/like_color.png' %}" alt="Убрать лайк" class="responsive-img" style="width: 27px; height: auto;">
+                            {% else %}
+                            <img src="{% static 'img/like.png' %}" alt="Поставить лайк" class="responsive-img" style="width: 27px; height: auto;">
+                            {% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<nav aria-label="Page navigation" style="margin-bottom: 48px">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link"
+               href="?page=1{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Первая</a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            <a class="page-link"
+               href="{% if page_obj.number == num %}# {% else %}?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% endif %}">
+                {{ num }}
+            </a>
+        </li>
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link"
+               href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Последняя</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+{% endblock %}

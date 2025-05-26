@@ -1,0 +1,57 @@
+{% extends 'mainapp/catalog.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container mb-5" style="margin-top: 120px">
+    {% if products %}
+    <div class="order-text">
+        <h3>Результаты поиска:</h3>
+    </div>
+    <div class="row row-cols-1 row-cols-md-4 g-3 mt-2">
+        {% for item in products %}
+        <div class="col">
+            <div class="card h-100">
+                <div style="position: relative;">
+                    <img src="{{ item.image.url }}" class="card-img-top" alt="Изображение товара"
+                         style="border-radius: 0px; padding: 10px 10px 0px 10px">
+                </div>
+                <div class="card-body">
+                    <div class="text d-flex justify-content-between flex-wrap flex-row">
+                        <h5 class="card-title">{{ item.name|capfirst }}</h5>
+                        <h5 class="card-text">{{ item.price|floatformat:0 }} ₽</h5>
+                    </div>
+                    <p class="card-title">{{ item.category|capfirst }}</p>
+                    <div class="text d-flex align-items-center justify-content-between flex-wrap flex-row">
+                        <div class="btn-img d-flex flex-wrap flex-row">
+                            <a href="#" class="btn btn-warning add-to-basket" data-product-id="{{ item.id }}"
+                               style="display: flex; justify-content: center; align-items: center; margin-right: 10px">
+                                <img src="{% static 'img/basket.png' %}" alt="Иконка корзина"
+                                     class="responsive-img"
+                                     style="width: 23px; height: 23px;">
+                            </a>
+                            <a href="#" class="btn btn-danger add-to-favorites" data-product-id="{{ item.id }}"
+                               style="display: flex; justify-content: center; align-items: center;">
+                                <img src="{% static 'img/heart.png' %}" alt="Иконка избранного"
+                                     class="responsive-img" style="width: 25px; height: 25px;">
+                            </a>
+                        </div>
+                        <div>
+                            <a href="{% url 'mainapp:order' product_id=item.id %}">Заказать</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty d-flex align-items-center justify-content-center flex-wrap flex-column"
+         style="height: 70vh;">
+        <img src="{% static 'img/magnifier.png' %}" alt="Иконка товары не найдены" style="width: 150px;">
+        <h3 style="text-align: center">Товары не найдены</h3>
+        <a href="{% url 'mainapp:catalog' %}" class="btn btn-success">Каталог</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

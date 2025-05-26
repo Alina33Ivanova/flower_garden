@@ -1,0 +1,335 @@
+{% extends 'mainapp/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container">
+    <h3 style="text-align: center; margin-top: 120px;">Каталог</h3>
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="menu d-flex flex-row flex-column">
+                <div class="menu-search">
+                    <div class="category-container">
+                        <h3 class="category-title">Поиск по названию</h3>
+                    </div>
+                    <form class="d-flex ms-auto position-relative" method="get"
+                          action="{% url 'mainapp:search_results' %}">
+                        <input class="form-control" style="padding-right: 3rem" type="search" name="q"
+                               placeholder="Поиск"
+                               aria-label="Search">
+                        <button class="btn btn-secondary position-absolute top-0 end-0 "
+                                style="margin-left: 8px; margin-top: 1px" type="submit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                 class="bi bi-search" viewBox="0 0 16 16" style="margin-bottom: 4px">
+                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+                <div class="menu-category mt-5">
+                    <form method="GET" action="{% url 'mainapp:catalog' %}">
+                        <div class="category-container">
+                            <h3 class="category-title">Категории</h3>
+                        </div>
+                        {% for category in category %}
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="category" value="{{ category.id }}"
+                                   id="category_{{ category.id }}">
+                            <label class="form-check-label" for="category_{{ category.id }}">{{ category.name }}</label>
+                        </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-success">Фильтровать</button>
+                    </form>
+                </div>
+                <form method="get" action="">
+                    <div class="menu-price d-flex align-items-start flex-wrap flex-column">
+                        <div class="category-container">
+                            <h3 class="category-title">Фильтровать</h3>
+                        </div>
+                        <div class="price d-flex align-items-start flex-wrap flex-row">
+                            <label for="priceRange" class="form-label">Цена от <span
+                                    id="minPrice">{{ min_price }}</span> до
+                                <span id="maxPrice">{{ max_price }}</span></label>
+                        </div>
+
+                        <input type="range" class="form-range" min="2000" max="10000" step="100" value="{{ min_price }}"
+                               id="minPriceRange">
+                        <input type="range" class="form-range" min="2000" max="10000" step="100" value="{{ max_price }}"
+                               id="maxPriceRange">
+
+                        <input type="hidden" name="min_price" id="hiddenMinPrice" value="{{ min_price }}">
+                        <input type="hidden" name="max_price" id="hiddenMaxPrice" value="{{ max_price }}">
+
+                        <button type="submit" class="btn btn-success">Фильтровать</button>
+                    </div>
+                    <a href="{% url 'mainapp:catalog' %}" class="btn btn-outline-success">Сбросить</a>
+                </form>
+                <script>
+                    const minPriceRange = document.getElementById('minPriceRange');
+                    const maxPriceRange = document.getElementById('maxPriceRange');
+                    const minPriceLabel = document.getElementById('minPrice');
+                    const maxPriceLabel = document.getElementById('maxPrice');
+                    const hiddenMinPrice = document.getElementById('hiddenMinPrice');
+                    const hiddenMaxPrice = document.getElementById('hiddenMaxPrice');
+
+                    function updatePrices() {
+                        let minVal = parseInt(minPriceRange.value);
+                        let maxVal = parseInt(maxPriceRange.value);
+
+                        if (minVal > maxVal) {
+                            if (this.id === 'minPriceRange') {
+                                maxVal = minVal;
+                                maxPriceRange.value = maxVal;
+                            } else {
+                                minVal = maxVal;
+                                minPriceRange.value = minVal;
+                            }
+                        }
+
+                        minPriceLabel.innerText = minVal;
+                        maxPriceLabel.innerText = maxVal;
+
+                        hiddenMinPrice.value = minVal;
+                        hiddenMaxPrice.value = maxVal;
+                    }
+
+                    minPriceRange.addEventListener('input', updatePrices);
+                    maxPriceRange.addEventListener('input', updatePrices);
+
+                    updatePrices();
+                </script>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="row">
+                {% for item in products %}
+                <div class="col-md-4 mb-4">
+                    <div class="card" style="width: 100%;">
+                        <div style="position: relative;">
+                            <img src="{{ item.image.url }}" class="card-img-top" alt="Изображение товара"
+                                 style="border-radius: 0px; padding: 10px">
+
+                            {% if item.id in favorites_ids %}
+                            <div style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.8); padding: 3px 8px; border-radius: 0px; font-weight: bold;"
+                                 id="add_favorites">
+                                В избранном
+                            </div>
+                            {% endif %}
+                            {% if item.id in basket_ids %}
+                            <div style="position: absolute; top: 25px; right: 15px; margin-top: 25px; background: rgba(255,255,255,0.8); padding: 3px 8px; border-radius: 0px; font-weight: bold;"
+                                 id="add_basket">
+                                В корзине
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <div class="text d-flex justify-content-between flex-wrap flex-row">
+                                <h5 class="card-title">{{ item.name|capfirst }}</h5>
+                                <h5 class="card-text">{{ item.price|floatformat:0 }} ₽</h5>
+                            </div>
+                            <h3>{{ item.title }}</h3>
+                            <button class="toggle-description" onclick="toggleDescription(this)">Описание
+                            </button>
+                            <p class="description" style="display: none;">{{ item.desc|capfirst }}</p>
+                            <p class="card-title">{{ item.category|capfirst }}</p>
+                            <div class="text d-flex align-items-center justify-content-between flex-wrap flex-row">
+                                <div class="btn-img d-flex flex-wrap flex-row">
+                                    <a href="#" class="btn btn-warning add-to-basket"
+                                       data-product-id="{{ item.id }}"
+                                       style="display: flex; justify-content: center; align-items: center; margin-right: 10px">
+                                        <img src="{% static 'img/basket.png' %}" alt="Иконка корзина"
+                                             class="responsive-img" style="width: 23px; height: 23px;">
+                                    </a>
+                                    <a href="#" class="btn btn-danger add-to-favorites"
+                                       data-product-id="{{ item.id }}"
+                                       style="display: flex; justify-content: center; align-items: center;">
+                                        <img src="{% static 'img/heart.png' %}" alt="Иконка избранное"
+                                             class="responsive-img" style="width: 25px; height: 25px;">
+                                    </a>
+                                </div>
+                                <div>
+                                    <a href="{% url 'mainapp:order' product_id=item.id %}">Заказать</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav aria-label="Page navigation" style="margin-bottom: 48px">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link"
+               href="?page=1{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Первая</a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            <a class="page-link"
+               href="{% if page_obj.number == num %}# {% else %}?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% endif %}">
+                {{ num }}
+            </a>
+        </li>
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link"
+               href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Последняя</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<script>
+    function toggleDescription(button) {
+        const description = button.nextElementSibling;
+
+        if (description.style.display === 'none') {
+            description.style.display = 'block';
+            button.textContent = 'Скрыть';
+        } else {
+            description.style.display = 'none';
+            button.textContent = 'Описание';
+        }
+    }
+</script>
+
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      function adjustMenuHeight() {
+        const cards = document.querySelectorAll('.col-md-4.mb-4 .card');
+        if (cards.length < 2) return;
+        const firstHeight = cards[0].offsetHeight;
+        const secondHeight = cards[1].offsetHeight;
+        const maxHeight = Math.max(firstHeight, secondHeight);
+        document.querySelectorAll('.menu').forEach(menu => {
+          menu.style.height = (maxHeight * 2) + 'px';
+        });
+      }
+
+      adjustMenuHeight();
+
+      window.addEventListener('resize', adjustMenuHeight);
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    document.addEventListener('click', function(event) {
+        if (event.target.matches('.add-to-favorites')) {
+            event.preventDefault();
+            const button = event.target;
+            if (button.dataset.isProcessing) return;
+            button.dataset.isProcessing = 'true';
+
+            const productId = button.dataset.productId;
+            const url = `/favorites/add/${productId}/`;
+
+            console.log('Добавляем в избранное:', url);
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({}),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Ответ сервера (избранное):', data);
+                if (data.favorites_count !== undefined) {
+                    document.getElementById('favorites-count').textContent = data.favorites_count;
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при добавлении в избранное:', error);
+            })
+            .finally(() => {
+                delete button.dataset.isProcessing;
+            });
+        }
+
+        if (event.target.matches('.add-to-basket')) {
+            event.preventDefault();
+            const button = event.target;
+            if (button.dataset.isProcessing) return;
+            button.dataset.isProcessing = 'true';
+
+            const productId = button.dataset.productId;
+            const url = `/basket/add/${productId}/`;
+
+            console.log('Добавляем в корзину:', url);
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({}),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Ответ сервера (корзина):', data);
+                if (data.basket_count !== undefined) {
+                    document.getElementById('basket-count').textContent = data.basket_count;
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при добавлении в корзину:', error);
+            })
+            .finally(() => {
+                delete button.dataset.isProcessing;
+            });
+        }
+    });
+
+    fetch('/get_counts/', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': csrftoken,
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.favorites_count !== undefined) {
+            document.getElementById('favorites-count').textContent = data.favorites_count;
+        }
+        if (data.basket_count !== undefined) {
+            document.getElementById('basket-count').textContent = data.basket_count;
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка при получении количества товаров:', error);
+    });
+});
+</script>
+
+{% endblock %}
+

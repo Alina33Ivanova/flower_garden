@@ -1,0 +1,482 @@
+{% extends 'mainapp/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="first_screen d-flex align-items-center justify-content-center">
+    <div class="container text-center" style="height: 7vh">
+        <h1>Цветочный сад</h1>
+        <p>Каждый букет - это история любви,<br>радости и красоты, созданная специально для вас!</p>
+        <a href="{% url 'mainapp:catalog' %}" class="btn btn-success">Каталог</a>
+    </div>
+</div>
+
+<div class="container">
+    {% if success_message %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ success_message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+</div>
+
+<button id="chat-button"><img src="{% static 'img/chat.png' %}" alt="Иконка чат" class="responsive-img"
+                              style="width: 35px"></button>
+<div id="chat-window">
+    <div id="chat-window-messages">
+        <div class="chat-header d-flex justify-content-between align-items-center"
+             style="position: fixed; z-index: 10; background-color: white; width: 270px">
+            <p style="text-align: center; margin: 0;">Чат с флористом</p>
+            <button id="close-chat" style="background-color: white; border: none; cursor: pointer;">
+                <img src="{% static 'img/close.png' %}" alt="Кнопка закрытия" class="responsive-img"
+                     style="width: 15px">
+            </button>
+        </div>
+        <div class="messages" id="messages">
+            {% for message, answers in messages_with_answers %}
+            <div class="message user-message">
+                <div class="msg">
+                    <div class="card">
+                        <p><strong>{{ message.user.first_name }} {{ message.user.last_name }}</strong></p>
+                        <p>{{ message.message }}</p>
+                        <p style="text-align: end">{{ message.created_at|date:"H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            {% for answer in answers %}
+            <div class="message admin-answer">
+                <div class="msg">
+                    <div class="card bg-light">
+                        <p><strong>Флорист</strong></p>
+                        <p>{{ answer.answer }}</p>
+                        <p style="text-align: end">{{ answer.created_at|date:"H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <form method="post" class="d-flex align-items-center" style="padding: 0px 10px 10px 10px;">
+        {% csrf_token %}
+        {{ message_form.non_field_errors }}
+        <div class="form-group mb-1" style="flex:1;">
+            {% if message_form.text.errors %}
+            <div class="text-danger small">
+                {% for error in message_form.text.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {{ message_form.message }}
+        </div>
+        {{ message_form.rating.as_hidden }}
+        <div class="d-flex justify-content-center mt-3">
+            {% if user.is_authenticated %}
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" name="send_message" class="send-button">
+                    <img src="{% static 'img/send.png' %}" alt="Иконка отправить" class="responsive-img"
+                         style="width: 20px;">
+                </button>
+            </form>
+            {% else %}
+            <a href="{% url 'authapp:login' %}" class="send-button">
+                <img src="{% static 'img/send.png' %}" alt="Иконка отправить" class="responsive-img"
+                     style="width: 20px;">
+            </a>
+            {% endif %}
+        </div>
+
+    </form>
+</div>
+
+<script>
+    const chatButton = document.getElementById('chat-button');
+    const chatWindow = document.getElementById('chat-window');
+    const closeChatButton = document.getElementById('close-chat');
+
+    chatButton.onclick = function() {
+        chatWindow.style.display = chatWindow.style.display === 'none' ? 'block' : 'none';
+    };
+
+    closeChatButton.onclick = function() {
+        chatWindow.style.display = 'none';
+    };
+</script>
+
+
+<div class="second_screen d-flex align-items-center justify-content-between flex-wrap flex-column">
+    <div class="container">
+        <div class="points d-flex align-items-start justify-content-evenly flex-wrap flex-row mt-4 mb-3">
+            <div class="point d-flex align-items-center justify-content-center flex-row mb-3">
+                <img src="{% static 'img/flower.png' %}" alt="Иконка свежие цветы" class="responsive-img"
+                     style="width: 80px">
+                <div class="text-content d-flex flex-column ml-3">
+                    <h3>Только свежие цветы</h3>
+                    <p>Наши флористы тщательно отбирают каждый цветок</p>
+                </div>
+            </div>
+            <div class="point d-flex align-items-center justify-content-center flex-row mb-3">
+                <img src="{% static 'img/delivery.png' %}" alt="Иконка доставка" class="responsive-img"
+                     style="width: 80px">
+                <div class="text-content d-flex flex-column ml-3">
+                    <h3>Доставка</h3>
+                    <p>Круглосуточная доставка по Курганской области</p>
+                </div>
+            </div>
+            <div class="point d-flex align-items-center justify-content-center flex-row mb-3">
+                <img src="{% static 'img/boquete.png' %}" alt="Иконка букет" class="responsive-img"
+                     style="width: 80px">
+                <div class="text-content d-flex flex-column ml-3">
+                    <h3>Букеты на заказ</h3>
+                    <p>Уникальные композиции для каждого клиента</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <h3 style="text-align: center">Новинки</h3>
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        {% for item in products %}
+        <div class="col">
+            <div class="card h-100">
+                <div style="position: relative;">
+                    <img src="{{ item.image.url }}" class="card-img-top" alt="Изображение товара"
+                         style="border-radius: 0px; padding: 10px 10px 0px 10px">
+                </div>
+                <div class="card-body">
+                    <div class="text d-flex justify-content-between flex-wrap flex-row">
+                        <h5 class="card-title">{{ item.name|capfirst }}</h5>
+                        <h5 class="card-text">{{ item.price|floatformat:0 }} ₽</h5>
+                    </div>
+                    <p class="card-title">{{ item.category|capfirst }}</p>
+                    <div class="text d-flex align-items-center justify-content-between flex-wrap flex-row">
+                        <div class="btn-img d-flex flex-wrap flex-row">
+                            <a href="#" class="btn btn-warning add-to-basket" data-product-id="{{ item.id }}"
+                               style="display: flex; justify-content: center; align-items: center; margin-right: 10px">
+                                <img src="{% static 'img/basket.png' %}" alt="Иконка корзина"
+                                     class="responsive-img"
+                                     style="width: 23px; height: 23px;">
+                            </a>
+                            <a href="#" class="btn btn-danger add-to-favorites" data-product-id="{{ item.id }}"
+                               style="display: flex; justify-content: center; align-items: center;">
+                                <img src="{% static 'img/heart.png' %}" alt="Иконка избранного"
+                                     class="responsive-img" style="width: 25px; height: 25px;">
+                            </a>
+                        </div>
+                        <div>
+                            <a href="{% url 'mainapp:order' product_id=item.id %}">Заказать</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="d-flex justify-content-center mt-3">
+        <a href="{% url 'mainapp:catalog' %}" class="btn btn-outline-success">Каталог</a>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <div class="designer-bouquet d-flex flex-column align-items-center">
+        <h3 class="text-center">Не нашли подходящий букет?</h3>
+        <p class="text-center">Воспользуйтесь конструктором букетов<br>и создайте свою уникальную композицию!</p>
+        <div class="order mb-3">
+            <a href="{% url 'mainapp:designer' %}" class="btn btn-success">Создать букет</a>
+        </div>
+    </div>
+</div>
+
+<div class="reviews_cards d-flex align-items-center flex-wrap flex-column mt-5">
+    <h3>Отзывы</h3>
+    <div class="container">
+        <div class="row">
+            {% for reviews in reviews %}
+            <div class="col-sm-4">
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="review-rating" style="gap: 50%" data-rating="{{ reviews.rating }}"></div>
+                        <h5 class="card-title"><b>{{ reviews.user.first_name }} {{ reviews.user.last_name }}</b></h5>
+                        <p class="card-text">{{ reviews.text }}</p>
+                        <p class="card-text">{{ reviews.created_at|date:"H:i, Y г." }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const reviewRatings = document.querySelectorAll('.review-rating');
+
+    reviewRatings.forEach(ratingContainer => {
+        const ratingValue = parseInt(ratingContainer.getAttribute('data-rating'));
+        const totalStars = 5;
+
+        for (let i = 1; i <= totalStars; i++) {
+            const star = document.createElement('span');
+            star.classList.add('star');
+            star.textContent = '★';
+
+            if (i <= ratingValue) {
+                star.classList.add('active');
+            }
+
+            ratingContainer.appendChild(star);
+        }
+    });
+});
+</script>
+
+<div class="reviews mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 order-md-1 mb-4 mb-md-0">
+                <div class="reviews-text">
+                    <h4 class="mb-3">Вы помогаете нам становиться лучше!</h4>
+                    <p>Именно ваши отзывы помогают нам в этом.<br>
+                        Если вы недавно воспользовались
+                        услугами, пожалуйста, поделитесь своим опытом!</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 order-md-2 d-flex flex-column align-items-center align-items-md-end">
+                <div style="max-width: 300px; width: 100%;">
+                    <div class="rating-stars-container d-flex justify-content-center justify-content-md-start">
+                        <div class="rating-stars-container d-flex justify-content-center justify-content-md-start">
+                            <div class="rating">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                            </div>
+                        </div>
+                    </div>
+                    <form method="post" class="w-100">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            <p class="mb-0">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="form-group mb-2">
+                            {% if form.text.errors %}
+                            <div class="text-danger small mb-1">
+                                {% for error in form.text.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {{ form.text }}
+                        </div>
+
+                        {{ form.rating.as_hidden }}
+
+                        <div class="d-flex justify-content-center mt-3">
+                            {% if user.is_authenticated %}
+                            <form method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">Отправить</button>
+                            </form>
+                            {% else %}
+                            <a href="{% url 'authapp:login' %}" class="btn btn-success">Отправить</a>
+                            {% endif %}
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const stars = document.querySelectorAll('.star');
+    const ratingInput = document.getElementById('id_rating');
+
+    stars.forEach((star) => {
+       star.addEventListener('click', () => {
+           const value = parseInt(star.getAttribute('data-value'));
+           ratingInput.value = value;
+           console.log("Установленный рейтинг:", value);
+
+           stars.forEach((s) => {
+               s.classList.remove('active');
+           });
+           for (let i = 0; i < value; i++) {
+               stars[i].classList.add('active');
+           }
+       });
+   });
+
+    const initialRating = parseInt(ratingInput.value);
+    if (initialRating) {
+        stars.forEach((s, i) => {
+            s.classList.remove('active');
+            if (i < initialRating) {
+                s.classList.add('active');
+            }
+        });
+    }
+</script>
+
+<div class="container mt-5 mb-5">
+    <h3 style="text-align: center;" class="mb-4">Контактная информация</h3>
+    <div class="row">
+        <div class="col-lg-7 col-md-6 mb-4 mb-md-0">
+            <div class="map-container" style="width: 100%; height: 300px;">
+                <script type="text/javascript" charset="utf-8" async
+                        src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3Acd10fdbd42fb60a6b178f0d02d6964b1222922ef8f31caa78e7d6eb1bded6c1b&amp;lang=ru_RU&amp;scroll=true"></script>
+            </div>
+        </div>
+
+        <div class="col-lg-5 col-md-6">
+            <div class="row">
+                <div class="col-sm-6 mb-3 mb-sm-0 mt-5">
+                    <h5 class="mb-4">Режим работы</h5>
+                    <p class="mb-5">ежедневно, 09:00-19:00</p>
+                    <h5 class="mb-4">Адрес</h5>
+                    <p class="mb-0">Заозёрный, 5-й микрорайон, 37</p>
+                </div>
+                <div class="col-sm-6 mt-5">
+                    <h5 class="mb-4">Связаться с нами</h5>
+                    <p class="mb-5">+7 (000) 000 00-00</p>
+                    <h5 class="mb-4">Почта</h5>
+                    <p class="mb-0">FlowerGarden@mail.com</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        function updateBasketCounter() {
+            fetch('/get_counts/', {
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.favorites_count !== undefined) {
+                    document.getElementById('favorites-count').textContent = data.favorites_count;
+                }
+                if (data.basket_count !== undefined) {
+                    document.getElementById('basket-count').textContent = data.basket_count;
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при обновлении счетчиков:', error);
+            });
+        }
+
+        document.addEventListener('click', function(event) {
+            if (event.target.matches('.add-to-favorites')) {
+                event.preventDefault();
+                const button = event.target;
+                if (button.dataset.isProcessing) return;
+                button.dataset.isProcessing = 'true';
+
+                const productId = button.dataset.productId;
+                const url = `/favorites/add/${productId}/`;
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({}),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Ответ сервера (избранное):', data);
+                    if (data.favorites_count !== undefined) {
+                        document.getElementById('favorites-count').textContent = data.favorites_count;
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при добавлении в избранное:', error);
+                })
+                .finally(() => {
+                    delete button.dataset.isProcessing;
+                });
+            }
+
+            if (event.target.matches('.add-to-basket')) {
+                event.preventDefault();
+                const button = event.target;
+                if (button.dataset.isProcessing) return;
+                button.dataset.isProcessing = 'true';
+
+                const productId = button.dataset.productId;
+                const url = `/basket/add/${productId}/`;
+
+                function updateBasketCounter() {
+        fetch('/get_counts/', {
+            headers: {
+                'X-CSRFToken': csrftoken,
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.favorites_count !== undefined) {
+                document.getElementById('favorites-count').textContent = data.favorites_count;
+            }
+            if (data.basket_count !== undefined) {
+                document.getElementById('basket-count').textContent = data.basket_count;
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при обновлении счетчиков:', error);
+        });
+    }
+                .finally(() => {
+                    delete button.dataset.isProcessing;
+                });
+            }
+        });
+
+        updateBasketCounter();
+    });
+</script>

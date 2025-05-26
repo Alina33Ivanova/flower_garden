@@ -1,0 +1,223 @@
+{% extends 'mainapp/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container" style="margin-top: 120px">
+    <form method="post" action="{% url 'mainapp:save_bouquet' %}">
+        {% csrf_token %}
+
+        <div class="information-container mt-3">
+            <h3 class="information-title mb-3">Цветы</h3>
+        </div>
+        <div class="accordion" id="flowersAccordion">
+            {% for flower in all_flowers %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFlower{{ forloop.counter }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseFlower{{ forloop.counter }}" aria-expanded="false"
+                            aria-controls="collapseFlower{{ forloop.counter }}">
+                        {{ flower.name_flower }}
+                    </button>
+                </h2>
+                <div id="collapseFlower{{ forloop.counter }}" class="accordion-collapse collapse"
+                     aria-labelledby="headingFlower{{ forloop.counter }}" data-bs-parent="#flowersAccordion">
+                    <div class="accordion-body d-flex align-items-center">
+                        <img src="{{ flower.image_flower.url }}" alt="{{ flower.name_flower }}" width="120"
+                             class="me-3">
+                        <div>
+                            <p>Цена за цветок: {{ flower.price|floatformat:0 }} ₽</p>
+
+                            <div class="input-group" style="width: 110px; max-width: 200px;">
+                                <button class="btn btn-outline-secondary decrement" type="button">-</button>
+                                <input type="number" name="flower_count_{{ flower.id }}" value="0" min="0"
+                                       class="form-control flower-count" data-flower-id="{{ flower.id }}"
+                                       data-price="{{ flower.price }}" style="text-align: center;">
+                                <button class="btn btn-outline-secondary increment" type="button">+</button>
+                            </div>
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" value="{{ flower.id }}" name="flowers"
+                                       id="flower{{ flower.id }}">
+                                <label class="form-check-label" for="flower{{ flower.id }}">Выбрать</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="information-container mt-3">
+            <h3 class="information-title mb-3">Обертка</h3>
+        </div>
+        <div class="accordion" id="packsAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingPack{{ forloop.counter }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapsePack{{ forloop.counter }}" aria-expanded="false"
+                            aria-controls="collapsePack{{ forloop.counter }}">
+                        Выбрать обертку
+                    </button>
+                </h2>
+                <div id="collapsePack{{ forloop.counter }}" class="accordion-collapse collapse"
+                     aria-labelledby="headingPack{{ forloop.counter }}" data-bs-parent="#packsAccordion">
+                    <div class="d-flex flex-row flex-wrap">
+                        {% for pack in all_packs %}
+                        <div class="decoration-item d-flex flex-column align-items-center"
+                             style="margin: 10px">
+                            {{ pack.name_pack }}
+                            <img src="{{ pack.pack.url }}" alt="{{ pack.name_pack }}"
+                                 style="width: 50px; height: 50px;">
+                            <p>Цена: {{ pack.price|floatformat:0 }} ₽</p>
+                            <div class="form-check">
+                                <input class="form-check-input pack-radio" type="radio" name="pack"
+                                       value="{{ pack.id }}"
+                                       data-price="{{ pack.price }}" id="pack{{ pack.id }}">
+                                <label class="form-check-label" for="pack{{ pack.id }}">Выбрать</label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="information-container mt-3">
+            <h3 class="information-title mb-3">Украшения</h3>
+        </div>
+        <div class="accordion" id="decorationsAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingDecoration{{ forloop.counter }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseDecoration{{ forloop.counter }}" aria-expanded="false"
+                            aria-controls="collapseDecoration{{ forloop.counter }}">
+                        Выбрать украшение
+                    </button>
+                </h2>
+                <div id="collapseDecoration{{ forloop.counter }}" class="accordion-collapse collapse"
+                     aria-labelledby="headingDecoration{{ forloop.counter }}" data-bs-parent="#decorationsAccordion">
+                    <div class="d-flex flex-row flex-wrap">
+                        {% for decoration in all_decorations %}
+                        <div class="decoration-item d-flex flex-column align-items-center"
+                             style="margin: 10px">
+                            <div>{{ decoration.name_decoration }}</div>
+                            <img src="{{ decoration.decoration.url }}" alt="{{ decoration.name_decoration }}"
+                                 style="width: 50px; height: 50px; margin: 5px 0;">
+                            <p style="margin: 5px 0;">Цена: {{ decoration.price|floatformat:0 }} ₽</p>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="{{ decoration.id }}"
+                                       name="decorations"
+                                       id="decoration{{ decoration.id }}" data-price="{{ decoration.price }}">
+                                <label class="form-check-label" for="decoration{{ decoration.id }}">Выбрать</label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-4">
+            <p style="text-align: end">Общая сумма: <span id="totalPrice">0 ₽</span></p>
+        </div>
+
+        <div class="order d-flex justify-content-center mb-5">
+            <input type="hidden" name="bouquet_id" id="bouquet_id" value="">
+            <button type="submit" class="mt-3 btn btn-success">Сохранить букет</button>
+        </div>
+    </form>
+</div>
+
+<script src="{% static 'js/jquery.js' %}"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const totalPriceSpan = document.getElementById('totalPrice');
+
+      function getSelectedFlowers() {
+        const result = [];
+        document.querySelectorAll('input[name="flowers"]:checked').forEach(cb => {
+          const flowerId = cb.value;
+          const countInput = document.querySelector(`input[name="flower_count_${flowerId}"]`);
+          const count = parseInt(countInput.value) || 0;
+          const price = parseFloat(countInput.dataset.price);
+          result.push({id: flowerId, count: count, price: price});
+        });
+        return result;
+      }
+
+      function getSelectedDecorations() {
+        const result = [];
+        document.querySelectorAll('input[name="decorations"]:checked').forEach(cb => {
+          const price = parseFloat(cb.dataset.price);
+          result.push({id: cb.value, price: price});
+        });
+        return result;
+      }
+
+      function getSelectedPack() {
+        const selectedRadio = document.querySelector('input[name="pack"]:checked');
+        if (selectedRadio) {
+          const price = parseFloat(selectedRadio.dataset.price);
+          return {id: selectedRadio.value, price: price};
+        }
+        return {id: null, price: 0};
+      }
+
+      function calculateTotal() {
+        let sum = 0;
+        getSelectedFlowers().forEach(f => {
+          sum += f.price * f.count;
+        });
+        getSelectedDecorations().forEach(d => {
+          sum += d.price;
+        });
+        const pack = getSelectedPack();
+        sum += pack.price;
+        totalPriceSpan.textContent = sum.toFixed(2) + ' ₽';
+      }
+
+      document.querySelectorAll('.increment').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const input = btn.closest('.input-group').querySelector('.flower-count');
+          let val = parseInt(input.value) || 0;
+          val++;
+          input.value = val;
+          calculateTotal();
+        });
+      });
+      document.querySelectorAll('.decrement').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const input = btn.closest('.input-group').querySelector('.flower-count');
+          let val = parseInt(input.value) || 0;
+          if (val > 0) val--;
+          input.value = val;
+          calculateTotal();
+        });
+      });
+
+      document.querySelectorAll('.flower-count').forEach(input => {
+        input.addEventListener('input', () => {
+          let val = parseInt(input.value);
+          if (isNaN(val) || val < 0) {
+            val = 0;
+            input.value = 0;
+          } else {
+            input.value = val;
+          }
+          calculateTotal();
+        });
+      });
+
+      document.querySelectorAll('input[type="checkbox"][name="flowers"], input[type="checkbox"][name="decorations"]').forEach(cb => {
+        cb.addEventListener('change', calculateTotal);
+      });
+      document.querySelectorAll('input[type="radio"][name="pack"]').forEach(radio => {
+        radio.addEventListener('change', calculateTotal);
+      });
+
+      calculateTotal();
+    });
+</script>
+
+{% endblock %}
