@@ -3,6 +3,9 @@
 {% block content %}
 
 <div class="container mb-5" style="margin-top: 120px;">
+    <div class="information-container mt-5">
+        <h3 class="information-title mb-3">Мои заказы</h3>
+    </div>
     <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
         {% if orders %}
         {% for item in orders %}
