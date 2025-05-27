@@ -90,19 +90,19 @@
 
 На странице 'Создать букет' клиент создает свой собственный, уникальный букет или же цветочную композицию. Он может выбрать цветы и их кол-во, упаковку и украшение.
 
-![создать букет](https://github.com/user-attachments/assets/be1b1f7b-0560-4507-8a00-41eee0771488)
+![создать букет](https://github.com/user-attachments/assets/0cab9cac-d6e7-437f-8bac-258e9162b71d)
 
 Рис.19 Страница создать букет
 
-![выбор цветов](https://github.com/user-attachments/assets/7d17076f-e44e-4ac4-8839-0a8ed1714e4b)
+![цветы](https://github.com/user-attachments/assets/08d4de9a-8a60-4bd7-8211-b102afdee50f)
 
 Рис.20 Выбор цветов
 
-![выбор упаковки](https://github.com/user-attachments/assets/03f15205-cef1-4e23-88bd-3b0fb69330ac)
+![упаковки](https://github.com/user-attachments/assets/93eb9ee2-2e4f-41a2-a3c5-4d37290485cb)
 
 Рис.21 Выбор упаковки
 
-![выбор украшения](https://github.com/user-attachments/assets/950aace2-a336-41e4-a47d-fed07b258f2b)
+![украшения](https://github.com/user-attachments/assets/f1345706-8b72-4e62-9736-22d1e132fdb9)
 
 Рис.22 Выбор украшения
 
