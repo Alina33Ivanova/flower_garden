@@ -9,7 +9,7 @@ class StaticViewSitemap(Sitemap):
     protocol = 'https'
 
     def items(self):
-        return ['index', 'catalog', 'blog', 'designer', 'orders']
+        return ['index', 'catalog', 'blog', 'designer']
 
     def location(self, item):
         return reverse('mainapp:' + item)
@@ -26,7 +26,7 @@ class ProductsSitemap(Sitemap):
         return obj.updated_at if hasattr(obj, 'updated_at') else None
 
     def location(self, obj):
-        return reverse('mainapp:catalog', args=[obj.id])
+        return reverse('mainapp:catalog')
 
 
 class ArticleSitemap(Sitemap):
@@ -40,7 +40,7 @@ class ArticleSitemap(Sitemap):
         return obj.created_at
 
     def location(self, obj):
-        return reverse('mainapp:blog', args=[obj.id])
+        return reverse('mainapp:blog')
 
 
 class ReviewsSitemap(Sitemap):
@@ -51,7 +51,7 @@ class ReviewsSitemap(Sitemap):
         return Reviews.objects.filter(is_active='published')
 
     def location(self, obj):
-        return reverse('mainapp:index', args=[obj.id])
+        return reverse('mainapp:index')
 
     def lastmod(self, obj):
         return obj.created_at
@@ -65,7 +65,7 @@ class FlowersSitemap(Sitemap):
         return Flowers.objects.all()
 
     def location(self, obj):
-        return reverse('mainapp:designer', args=[obj.id])
+        return reverse('mainapp:designer')
 
 
 class PackSitemap(Sitemap):
@@ -76,7 +76,7 @@ class PackSitemap(Sitemap):
         return Pack.objects.all()
 
     def location(self, obj):
-        return reverse('mainapp:designer', args=[obj.id])
+        return reverse('mainapp:designer')
 
 
 class DecorationSitemap(Sitemap):
@@ -87,4 +87,4 @@ class DecorationSitemap(Sitemap):
         return Decoration.objects.all()
 
     def location(self, obj):
-        return reverse('mainapp:designer', args=[obj.id])
+        return reverse('mainapp:designer')
