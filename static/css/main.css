@@ -556,6 +556,7 @@ input#id_password2.form-control::placeholder {
     background-position: center;
     width: 100%;
     height: 741px;
+    background-repeat: no-repeat;
 }
 
 .first_screen h1 {
@@ -853,6 +854,7 @@ h3 {
      background-color: white;
      margin: 0;
      padding: 15px;
+     height: auto !important;
 }
 
 @media (max-width: 425px) {
