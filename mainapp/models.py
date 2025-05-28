@@ -132,24 +132,12 @@ class Order(models.Model):
     sender_name = models.CharField(
         verbose_name='Имя отправителя',
         max_length=150,
-        validators=[
-            RegexValidator(
-                regex='^[А-Яа-яЁё]+$',
-                message='Используйте только русские символы.'
-            )
-        ],
         null=True
     )
     phone_number = models.CharField(verbose_name='Номер телефона отправителя', max_length=20, null=True)
     recipient_name = models.CharField(
         verbose_name='Имя получателя',
         max_length=150,
-        validators=[
-            RegexValidator(
-                regex='^[А-Яа-яЁё]+$',
-                message='Используйте только русские символы.'
-            )
-        ],
         null=True
     )
     recipient_phone = models.CharField(verbose_name='Номер телефона получателя', max_length=20, null=True)
@@ -158,7 +146,7 @@ class Order(models.Model):
         ('courier', 'Доставка курьером'),
     ])
 
-    address = models.CharField(max_length=255)
+    address = models.CharField(max_length=255, blank=True)
     date = models.DateField()
     time = models.TimeField()
     comment = models.CharField(max_length=255, blank=True)
@@ -316,7 +304,7 @@ class UserBouquetOrder(models.Model):
 
 class Message(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
-    message = models.CharField(verbose_name='Сообщение', max_length=255, blank=True, null=True)
+    message = models.CharField(verbose_name='Сообщение', max_length=255, null=True)
     image = models.ImageField(verbose_name='Изображение цветка', upload_to='answer/%Y/%m/%d', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
