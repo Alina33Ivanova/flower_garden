@@ -19,6 +19,7 @@ class AuthForm(AuthenticationForm):
             'placeholder': 'Пароль'
         })
 
+        self.error_messages['invalid_login'] = ("Неверный логин или пароль.")
 
 class RegisterForm(UserCreationForm):
     class Meta:
