@@ -8,13 +8,13 @@ class User(AbstractUser):
     username_validator = ASCIIUsernameValidator()
     username = models.CharField(
         verbose_name='Логин',
-        max_length=150,
+        max_length=25,
         unique=True,
         validators=[username_validator],
     )
     first_name = models.CharField(
         verbose_name='Имя',
-        max_length=150,
+        max_length=25,
         validators=[
             RegexValidator(
                 regex='^[А-Яа-яЁё]+$',
@@ -25,7 +25,7 @@ class User(AbstractUser):
     )
     last_name = models.CharField(
         verbose_name='Фамилия',
-        max_length=150,
+        max_length=25,
         validators=[
             RegexValidator(
                 regex='^[А-Яа-яЁё]+$',
